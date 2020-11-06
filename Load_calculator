@@ -1,0 +1,78 @@
+# Author ：SongJian
+# Date   ：2020/11/06
+# Run    ： python Load_calculator --type=diff --principal=?? --periods=?? --interest==?? 
+#        ： python Load_calculator --type=annuity --principal=?? --periods=?? --interest==?? 
+#        :  python Load_calculator --type=annuity --principal=?? --payment=?? --interest==?? 
+#        :  python Load_calculator --type=annuity --periods=??   --payment=?? --interest==?? 
+
+import math 
+import sys
+
+args = sys.argv
+
+payment = 0
+sum = 0
+principal = 0
+payment = 0
+periods = 0
+interest = 0
+
+
+if len(args) != 5 :
+    print("Incorrect parameters")
+else :
+    for i in args[1:5] :
+        if i == '--type=diff' :
+            type = 'diff'
+        elif i == '--type=annuity' :
+            type = 'annuity'
+        elif '--principal=' in i :
+            principal = int(i[12:])
+        elif '--periods=' in i :
+            periods = int(i[10:])
+        elif '--interest=' in i :
+            interest =  float(i[11:])/12/100
+        elif '--payment=' in i :
+            payment = int(i[10:])
+        else :
+           print("Incorrect parameters") 
+         
+    if type == 'diff' :
+        if  (interest < 0) or (payment > 0) :
+           print("Incorrect parameters")
+        else :
+            for m in range(1,periods+1) :
+                payment = math.ceil(principal/periods + interest * (principal - principal * (m-1)/periods))
+                sum = payment + sum
+                print("Month ",m,": payment is ",payment)
+            overpayment = sum - principal
+            print()
+            print("Overpayment = ",overpayment)
+                       
+    elif type == 'annuity' :
+        if periods == 0 :
+            month= math.ceil(math.log(payment/(payment - interest * principal) , (1+interest)))
+            year= month // 12
+            mon = month % 12
+            if year==0 :
+                print("It will take ",mon," months to repay this loan!")
+            elif mon ==0 :
+                print("It will take ",year," years to repay this loan!")
+            else:
+                print("It will take ",year," years and ",mon," months to repay this loan!")
+            overpayment = month * payment - principal
+            print("Overpayment = ",overpayment)
+    
+        elif payment == 0:   
+            payment= math.ceil(principal * (interest * math.pow((1+interest),periods)/(math.pow((1+interest),periods) -1)))
+            print("Your monthly payment = ",payment,"!")
+            overpayment = periods * payment - principal
+            print("Overpayment = ",overpayment)
+
+        elif principal == 0:
+            principal = round(payment/(interest * math.pow((1+interest),periods)/(math.pow((1+interest),periods) -1)))
+            print("Your loan principal =",principal,"!")
+            overpayment = periods * payment - principal
+            print("Overpayment = ",overpayment)
+    else :
+        print("Incorrect parameters") 
